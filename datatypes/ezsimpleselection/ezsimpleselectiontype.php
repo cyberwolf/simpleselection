@@ -43,21 +43,20 @@
 
 */
 
-include_once( "kernel/classes/ezdatatype.php" );
-
-define("EZ_DATATYPESTRING_EZ_SIMPLESELECTION", "ezsimpleselection");
-define("EZ_DATATYPESTRING_MULTI_FIELD", "data_int1");
-define("EZ_DATATYPESTRING_OPTS_FIELD", "data_text5");
-define("EZ_DATATYPESTRING_OPTS_VALUES_FIELD", "data_text4");
-define("EZ_DATATYPESTRING_CHECKBOX_FIELD", "data_text3");
-define("EZ_DATATYPESTRING_DELIMITER_FIELD", "data_text2");
-
 class eZSimpleSelectionType extends eZDataType {
+
+    const DATATYPESTRING = 'ezsimpleselection';
+    const MULTI_FIELD = 'data_int1';
+    const OPTS_FIELD = 'data_text5';
+    const OPTS_VALUES_FIELD = 'data_text4';
+    const CHECKBOX_FIELD = 'data_text3';
+    const DELIMITER_FIELD = 'data_text2';
+
     /*!
      Constructor
     */
     function eZSimpleSelectionType() {
-        $this->eZDataType(EZ_DATATYPESTRING_EZ_SIMPLESELECTION,
+        $this->eZDataType(self::DATATYPESTRING,
                             ezi18n('extension/datatypes', "Simple Selection",
                                     'Datatype name' ),
                            array( 'serialize_supported' => true,
@@ -67,7 +66,7 @@ class eZSimpleSelectionType extends eZDataType {
     /*!
      Sets the default object value.
     */
-    function initializeObjectAttribute( &$contentObjectAttribute, $currentVersion, &$originalContentObjectAttribute )
+    function initializeObjectAttribute( $contentObjectAttribute, $currentVersion, $originalContentObjectAttribute )
     {
         if ( $currentVersion != false )
         {
@@ -76,9 +75,9 @@ class eZSimpleSelectionType extends eZDataType {
         }
         else
         {
-            $contentClassAttribute =& $contentObjectAttribute->contentClassAttribute();
-            $optFields = explode("~|~",$contentClassAttribute->attribute( EZ_DATATYPESTRING_OPTS_FIELD ));
-            $optDefaults = explode("~|~",$contentClassAttribute->attribute( EZ_DATATYPESTRING_OPTS_VALUES_FIELD ));
+            $contentClassAttribute = $contentObjectAttribute->contentClassAttribute();
+            $optFields = explode("~|~",$contentClassAttribute->attribute( self::OPTS_FIELD ));
+            $optDefaults = explode("~|~",$contentClassAttribute->attribute( self::OPTS_VALUES_FIELD ));
 
             $defaultArray = array();
 
@@ -108,11 +107,12 @@ class eZSimpleSelectionType extends eZDataType {
     /*!
      Validate the class input.
     */
-    function validateClassAttributeHTTPInput(&$http, $base,
-                                                &$classAttribute)
+    function validateClassAttributeHTTPInput($http,
+                                             $base,
+                                             $classAttribute)
     {
         $clsid = $classAttribute->attribute('id');
-        $prefix = "${base}_" . EZ_DATATYPESTRING_EZ_SIMPLESELECTION;
+        $prefix = "${base}_" . self::DATATYPESTRING;
 
         $optsField = "${prefix}_options_${clsid}";
         $optsDefaultValuesField = "${prefix}_option_values_${clsid}";
@@ -125,23 +125,23 @@ class eZSimpleSelectionType extends eZDataType {
 
             if ( count(explode("~|~", $optionDefaultValues)) > count(explode("~|~", $options)) )
             {
-                return EZ_INPUT_VALIDATOR_STATE_INVALID;
+                return eZInputValidator::STATE_INVALID;
             }
         }
 
-        return EZ_INPUT_VALIDATOR_STATE_ACCEPTED;
+        return eZInputValidator::STATE_ACCEPTED;
     }
 
 
     /*!
      Get the values sent in when the class is stored.
     */
-    function fetchClassAttributeHTTPInput(&$http,
+    function fetchClassAttributeHTTPInput($http,
                                           $base,
-                                          &$classAttribute)
+                                          $classAttribute)
     {
         $clsid = $classAttribute->attribute('id');
-        $prefix = "${base}_" . EZ_DATATYPESTRING_EZ_SIMPLESELECTION;
+        $prefix = "${base}_" . self::DATATYPESTRING;
         $optsField = "${prefix}_options_${clsid}";
         $optsValueField = "${prefix}_option_values_${clsid}";
 
@@ -157,7 +157,7 @@ class eZSimpleSelectionType extends eZDataType {
             {
                 $isMultipleSelection = true;
             }
-            $classAttribute->setAttribute(EZ_DATATYPESTRING_MULTI_FIELD,
+            $classAttribute->setAttribute(self::MULTI_FIELD,
                                             ($isMultipleSelection ? 1 : 0));
 
             // Deal with the delimiter string
@@ -166,7 +166,7 @@ class eZSimpleSelectionType extends eZDataType {
             {
                 $delimiter = $http->postVariable($delimiterField);
             }
-            $classAttribute->setAttribute(EZ_DATATYPESTRING_DELIMITER_FIELD,
+            $classAttribute->setAttribute(self::DELIMITER_FIELD,
                                             $delimiter);
 
             // Deal with the checkbox style
@@ -175,15 +175,15 @@ class eZSimpleSelectionType extends eZDataType {
             {
                 $useCheckbox = true;
             }
-            $classAttribute->setAttribute(EZ_DATATYPESTRING_CHECKBOX_FIELD,
+            $classAttribute->setAttribute(self::CHECKBOX_FIELD,
                                             $useCheckbox);
 
             // Deal with our options string. No need to test for existance again.
-            $classAttribute->setAttribute(EZ_DATATYPESTRING_OPTS_FIELD,
+            $classAttribute->setAttribute(self::OPTS_FIELD,
                                           $http->postVariable($optsField));
 
             // Deal with the default option values
-            $classAttribute->setAttribute(EZ_DATATYPESTRING_OPTS_VALUES_FIELD,
+            $classAttribute->setAttribute(self::OPTS_VALUES_FIELD,
                                           $http->postVariable($optsValueField));
 
 
@@ -196,18 +196,18 @@ class eZSimpleSelectionType extends eZDataType {
     /*!
      Make sure the data we're sent back in the form is correct.
     */
-    function validateObjectAttributeHTTPInput(&$http, $base,
-                                                &$contentObjectAttribute) {
-        $prefix = "${base}_" . EZ_DATATYPESTRING_EZ_SIMPLESELECTION;
-        $classAttribute =& $contentObjectAttribute->contentClassAttribute();
+    function validateObjectAttributeHTTPInput($http, $base,
+                                                $contentObjectAttribute) {
+        $prefix = "${base}_" . self::DATATYPESTRING;
+        $classAttribute = $contentObjectAttribute->contentClassAttribute();
         $selectionField = "${prefix}_selected_array_" .
                             $contentObjectAttribute->attribute('id');
         $isRequired = ($classAttribute->attribute('is_required') == 1);
-        $isMultipleSelection = ($classAttribute->attribute(EZ_DATATYPESTRING_MULTI_FIELD) == 1);
+        $isMultipleSelection = ($classAttribute->attribute(self::MULTI_FIELD) == 1);
 
         // See what to do if we've been sent the field
         if ($http->hasPostVariable($selectionField)) {
-            $selectOptions =& $http->postVariable($selectionField);
+            $selectOptions = $http->postVariable($selectionField);
 
             // Make sure we've selected something - we might have
             // selected multiple empty values!
@@ -215,14 +215,14 @@ class eZSimpleSelectionType extends eZDataType {
                 foreach ($selectOptions as $selVal) {
                     if (!empty($selVal)) {
                         // Great! We've got a real value
-                        return EZ_INPUT_VALIDATOR_STATE_ACCEPTED;
+                        return eZInputValidator::STATE_ACCEPTED;
                     }
                 }
                 // Doh! All the things selected were empty!
-                return EZ_INPUT_VALIDATOR_STATE_INVALID;
+                return eZInputValidator::STATE_INVALID;
             }
             // We're easy going, anything is acceptable.
-            return EZ_INPUT_VALIDATOR_STATE_ACCEPTED;
+            return eZInputValidator::STATE_ACCEPTED;
         } else {
             if ($isMultipleSelection && $isRequired) {
                 $contentObjectAttribute->setValidationError(
@@ -232,9 +232,9 @@ class eZSimpleSelectionType extends eZDataType {
                 $contentObjectAttribute->setValidationError(
                     'No POST variable. Please check your configuration.');
             } else {
-                return EZ_INPUT_VALIDATOR_STATE_ACCEPTED;
+                return eZInputValidator::STATE_ACCEPTED;
             }
-            return EZ_INPUT_VALIDATOR_STATE_INVALID;
+            return eZInputValidator::STATE_INVALID;
         }
     }
 
@@ -242,8 +242,8 @@ class eZSimpleSelectionType extends eZDataType {
     /*
      Make sure the input is valid when sent in a collection.
     */
-    function validateCollectionAttributeHTTPInput(&$http, $base,
-                                                &$contentObjectAttribute) {
+    function validateCollectionAttributeHTTPInput($http, $base,
+                                                   $contentObjectAttribute) {
         return $this->validateObjectAttributeHTTPInput($http, $base,
                                                     $contentObjectAttribute);
     }
@@ -251,16 +251,16 @@ class eZSimpleSelectionType extends eZDataType {
 
     /*!
     */
-    function fetchObjectAttributeHTTPInput(&$http, $base,
-                                            &$contentObjectAttribute) {
-        $prefix = "${base}_" . EZ_DATATYPESTRING_EZ_SIMPLESELECTION;
-        $classAttribute =& $contentObjectAttribute->contentClassAttribute();
+    function fetchObjectAttributeHTTPInput($http, $base,
+                                            $contentObjectAttribute) {
+        $prefix = "${base}_" . self::DATATYPESTRING;
+        $classAttribute = $contentObjectAttribute->contentClassAttribute();
         $selectionField = "${prefix}_selected_array_" .
                             $contentObjectAttribute->attribute('id');
-        $isMultipleSelection = ($classAttribute->attribute(EZ_DATATYPESTRING_MULTI_FIELD) == 1);
+        $isMultipleSelection = ($classAttribute->attribute(self::MULTI_FIELD) == 1);
 
         if ($http->hasPostVariable($selectionField)) {
-            $selectOptions =& $http->postVariable($selectionField);
+            $selectOptions = $http->postVariable($selectionField);
 
             $idString = implode('***', $selectOptions);
 
@@ -279,7 +279,7 @@ class eZSimpleSelectionType extends eZDataType {
     /*!
      Returns the selected options by id.
     */
-    function &objectAttributeContent(&$contentObjectAttribute) {
+    function objectAttributeContent($contentObjectAttribute) {
         $idString = $contentObjectAttribute->attribute('data_text');
         return explode( '***', $idString );
     }
@@ -288,13 +288,13 @@ class eZSimpleSelectionType extends eZDataType {
     /*!
      Returns the content data for the given content class attribute.
     */
-    function &classAttributeContent(&$classAttribute)
+    function classAttributeContent($classAttribute)
     {
         $optionArray = array();
         $optValues = $this->makeValueArray($classAttribute->attribute(
-                                        EZ_DATATYPESTRING_OPTS_FIELD));
+                                        self::OPTS_FIELD));
 
-        $optDefaultValues = explode("~|~",$classAttribute->attribute(EZ_DATATYPESTRING_OPTS_VALUES_FIELD));
+        $optDefaultValues = explode("~|~",$classAttribute->attribute(self::OPTS_VALUES_FIELD));
 
         if (count($optValues) > 0)
         {
@@ -321,15 +321,15 @@ class eZSimpleSelectionType extends eZDataType {
         return array(
                 'options' => $optionArray,
                 'is_multiselect' => $classAttribute->attribute(
-                                            EZ_DATATYPESTRING_MULTI_FIELD),
+                                            self::MULTI_FIELD),
                 'delimiter' => $classAttribute->attribute(
-                                            EZ_DATATYPESTRING_DELIMITER_FIELD),
+                                            self::DELIMITER_FIELD),
                 'checkbox' => $classAttribute->attribute(
-                                            EZ_DATATYPESTRING_CHECKBOX_FIELD),
+                                            self::CHECKBOX_FIELD),
                 'option_string' => $classAttribute->attribute(
-                                            EZ_DATATYPESTRING_OPTS_FIELD),
+                                            self::OPTS_FIELD),
                 'option_string_values' => $classAttribute->attribute(
-                                            EZ_DATATYPESTRING_OPTS_VALUES_FIELD),
+                                            self::OPTS_VALUES_FIELD),
                 );
     }
 
@@ -337,20 +337,20 @@ class eZSimpleSelectionType extends eZDataType {
     /*!
      Fetches the http post variables for collected information
     */
-    function fetchCollectionAttributeHTTPInput(&$collection,
-                                                &$collectionAttribute,
-                                                &$http, $base,
-                                                &$contentObjectAttribute) {
-        $prefix = "${base}_" . EZ_DATATYPESTRING_EZ_SIMPLESELECTION;
-        $classAttribute =& $contentObjectAttribute->contentClassAttribute();
+    function fetchCollectionAttributeHTTPInput($collection,
+                                                $collectionAttribute,
+                                                $http, $base,
+                                                $contentObjectAttribute) {
+        $prefix = "${base}_" . self::DATATYPESTRING;
+        $classAttribute = $contentObjectAttribute->contentClassAttribute();
         $selectionField = "${prefix}_selected_array_" .
                             $contentObjectAttribute->attribute('id');
         $optValues = $this->makeValueArray($classAttribute->attribute(
-                                        EZ_DATATYPESTRING_OPTS_FIELD));
+                                        self::OPTS_FIELD));
         $resultArray = array();
 
         if ($http->hasPostVariable($selectionField)) {
-            $selectOptions =& $http->postVariable($selectionField);
+            $selectOptions = $http->postVariable($selectionField);
             foreach ($selectOptions as $selVal) {
                 if (array_key_exists($selVal, $optValues)) {
                     $resultArray[] = $optValues[$selVal];
@@ -360,7 +360,7 @@ class eZSimpleSelectionType extends eZDataType {
             }
 
             $delimiter = $classAttribute->attribute(
-                                    EZ_DATATYPESTRING_DELIMITER_FIELD);
+                                    self::DELIMITER_FIELD);
             if (empty($delimiter)) {
                 $delimiter = ', ';
             }
@@ -395,7 +395,7 @@ class eZSimpleSelectionType extends eZDataType {
     /*!
      Returns the text.
     */
-    function title( &$contentObjectAttribute )
+    function title( $contentObjectAttribute, $name = null )
     {
         return $contentObjectAttribute->attribute( "data_text" );
     }
@@ -415,7 +415,7 @@ class eZSimpleSelectionType extends eZDataType {
 
      \return An array containing name/value pairs (value is the key)
     */
-    function &makeValueArray($values) {
+    function makeValueArray($values) {
         $result = array();
         foreach (explode("~|~", $values) as $val) {
             // Make sure we handle range values
@@ -443,23 +443,22 @@ class eZSimpleSelectionType extends eZDataType {
     /*!
      \reimp
     */
-    function &sortKey( &$contentObjectAttribute )
+    function sortKey( $contentObjectAttribute )
     {
-        include_once( 'lib/ezi18n/classes/ezchartransform.php' );
-        $trans =& eZCharTransform::instance();
+        $trans = eZCharTransform::instance();
         return $trans->transformByGroup( $contentObjectAttribute->attribute( 'data_text' ), 'lowercase' );
     }
 
     /*!
      \reimp
     */
-    function &sortKeyType()
+    function sortKeyType()
     {
         return 'string';
     }
 
 }
 
-eZDataType::register(EZ_DATATYPESTRING_EZ_SIMPLESELECTION,
-                        "ezsimpleselectiontype" );
+eZDataType::register(eZSimpleSelectionType::DATATYPESTRING,
+                        "eZSimpleSelectionType" );
 ?>
