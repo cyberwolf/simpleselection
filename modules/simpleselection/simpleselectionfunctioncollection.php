@@ -3,8 +3,8 @@ class SimpleSelectionFunctionCollection
 {
     function fetchRelatedSelections($contentclassattribute_id, $selection)
     {
-        $db =& eZDB::instance();
-        $query = " SELECT DISTINCT ezcontentobject_attribute.contentobject_id,ezcontentobject_attribute.version FROM ezcontentobject, ezcontentobject_attribute
+        $db = eZDB::instance();
+        $query = "SELECT DISTINCT ezcontentobject_attribute.contentobject_id,ezcontentobject_attribute.version FROM ezcontentobject, ezcontentobject_attribute
 WHERE ezcontentobject_attribute.data_text IN ( '$selection' ) AND
 ezcontentobject_attribute.contentclassattribute_id = $contentclassattribute_id AND ezcontentobject.id = ezcontentobject_attribute.contentobject_id AND ezcontentobject.current_version = ezcontentobject_attribute.version AND ezcontentobject.status=1";
 
@@ -22,8 +22,8 @@ ezcontentobject_attribute.contentclassattribute_id = $contentclassattribute_id A
     }
 
     function fetchList( $classAttributeID, $nodeID, $subtreeParams = array() ) {
-        $classAttribute =& eZContentClassAttribute::fetch( $classAttributeID );
-        $classAttributeContent =& $classAttribute->attribute( 'content' );
+        $classAttribute = eZContentClassAttribute::fetch( $classAttributeID );
+        $classAttributeContent = $classAttribute->attribute( 'content' );
         $classAttributeIdentifier = $classAttribute->attribute( 'identifier' );
         $list = array();
 
@@ -38,22 +38,21 @@ ezcontentobject_attribute.contentclassattribute_id = $contentclassattribute_id A
         $subtreeParams['ClassFilterType'] = 'include';
         $subtreeParams['ClassFilterArray'] = array( $classAttribute->attribute('contentclass_id') );
 
-        $nodes =& eZContentObjectTreeNode::subTree($subtreeParams, $nodeID);
+        $nodes = eZContentObjectTreeNode::subTreeByNodeID($subtreeParams, $nodeID);
 		if(!empty($nodes))
 	    {
 	        foreach ( array_keys( $nodes ) as $key )
 	        {
-	            $node =& $nodes[$key];
-	            $dataMap =& $node->attribute( 'data_map' );
-	            $attribute =& $dataMap[$classAttributeIdentifier];
-	
+	            $node = $nodes[$key];
+	            $dataMap = $node->attribute( 'data_map' );
+	            $attribute = $dataMap[$classAttributeIdentifier];
+
 	            foreach ( $attribute->attribute( 'content' ) as $selectedOption )
 	            {
-	                $list[$selectedOption]['collection'][] =& $node;
+	                $list[$selectedOption]['collection'][] = $node;
 	            }
 	        }
 		}
         return array( 'result' => $list );
     }
 }
-?>
